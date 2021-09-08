@@ -1,6 +1,6 @@
 # distribution
 
-A new Flutter project.
+A new Flutter project. The maim purpose of this app is to manage the distribution of company's products by it's distributors.
 
 ## Getting Started
 
