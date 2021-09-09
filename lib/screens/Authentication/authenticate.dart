@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:distribution/screens/Authentication/sign-in.dart';
 
 class authenticate extends StatefulWidget {
   @override
@@ -8,8 +9,6 @@ class authenticate extends StatefulWidget {
 class _authenticateState extends State<authenticate> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text("This is the Authenication Page"),
-    );
+    return Signin();
   }
 }
