@@ -29,21 +29,15 @@ class AuthService {
   }
 
   // Sign in with Email & Password
-  Future<String> signUp({String email, String password}) async {
+  Future signIn({String email, String password}) async {
     try {
-      await _auth.createUserWithEmailAndPassword(
+      UserCredential result = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
-      return "Signed Up";
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        return "The password provided is too weak.";
-      } else if (e.code == 'email-already-in-use') {
-        return "The account already exists for that email.";
-      } else {
-        return "Something Went Wrong.";
-      }
+      User user = result.user;
+      return _userFromFirebaseUser(user);
     } catch (e) {
-      print(e);
+      print(e.toString());
+      return null;
     }
   }
 

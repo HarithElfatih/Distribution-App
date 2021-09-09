@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:distribution/services/auth.dart';
+import 'package:distribution/shared/constant.dart';
 
 class Signin extends StatefulWidget {
   @override
@@ -8,10 +9,15 @@ class Signin extends StatefulWidget {
 
 class _SigninState extends State<Signin> {
   final AuthService _auth = AuthService();
+  final _formkey = GlobalKey<FormState>();
+
+  String email = "";
+  String password = "";
+  String error = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black12,
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
         backgroundColor: Colors.amber,
         elevation: 0.0,
@@ -19,18 +25,49 @@ class _SigninState extends State<Signin> {
         centerTitle: true,
       ),
       body: Container(
-          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          child: RaisedButton(
-              child: Text("Sign in"),
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        child: Form(
+          key: _formkey,
+          child: Column(children: <Widget>[
+            SizedBox(height: 20.0),
+            TextFormField(
+              decoration: textInputDecoration.copyWith(hintText: "Email"),
+              validator: (val) => val.isEmpty ? "Enter Your Email" : null,
+              onChanged: (val) {
+                setState(() => email = val);
+              },
+            ),
+            SizedBox(height: 20),
+            TextFormField(
+              decoration: textInputDecoration.copyWith(hintText: "Password"),
+              obscureText: true,
+              validator: (val) => val.isEmpty ? "Enter Your Password" : null,
+              onChanged: (val) {
+                setState(() => password = val);
+              },
+            ),
+            SizedBox(height: 20),
+            RaisedButton(
+              color: Colors.pink,
+              child: Text("Sign in", style: TextStyle(color: Colors.white)),
               onPressed: () async {
-                dynamic result = await _auth.signInAnom();
-                if (result == null) {
-                  print("Error Occured");
-                } else {
-                  print("You Have Signed in");
-                  print(result.uid);
+                if (_formkey.currentState.validate()) {
+                  dynamic result =
+                      await _auth.signIn(email: email, password: password);
+                  if (result == null) {
+                    setState(() => error = "هناك خطاْ في طلبك");
+                  }
                 }
-              })),
+              },
+            ),
+            SizedBox(height: 20),
+            Text(
+              error,
+              style: TextStyle(color: Colors.red, fontSize: 14),
+            )
+          ]),
+        ),
+      ),
     );
   }
 }
