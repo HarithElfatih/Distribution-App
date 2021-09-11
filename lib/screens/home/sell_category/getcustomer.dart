@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:distribution/shared/constant.dart';
 
@@ -9,7 +10,7 @@ class GetCustomer extends StatefulWidget {
 class _GetCustomerState extends State<GetCustomer> {
   final _formkey = GlobalKey<FormState>();
   String phone_number = "";
-  String error = "null";
+  String error = "";
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +35,7 @@ class _GetCustomerState extends State<GetCustomer> {
                   val.isEmpty ? "Enter Customer Phone Number" : null,
               onChanged: (val) {
                 setState(() => phone_number = val);
+                print("This phone number $phone_number");
               },
             ),
             SizedBox(height: 20),
@@ -42,8 +44,19 @@ class _GetCustomerState extends State<GetCustomer> {
               child: Text("Enter", style: TextStyle(color: Colors.white)),
               onPressed: () async {
                 if (_formkey.currentState.validate()) {
-                  if (error == "") {
-                    setState(() => error = "هناك خطاْ في طلبك");
+                  try {
+                    FirebaseFirestore.instance
+                        .collection('customers')
+                        .where('phone_number', isEqualTo: phone_number)
+                        .get()
+                        .then((QuerySnapshot querySnapshot) {
+                      querySnapshot.docs.forEach((doc) {
+                        print(doc["phone_number"]);
+                      });
+                    }).catchError(
+                            (error) => print("Failed to add user: $error"));
+                  } catch (e) {
+                    print("Can't fetch the data");
                   }
                 }
               },
