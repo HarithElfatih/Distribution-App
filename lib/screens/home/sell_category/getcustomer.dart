@@ -50,9 +50,14 @@ class _GetCustomerState extends State<GetCustomer> {
                         .where('phone_number', isEqualTo: phone_number)
                         .get()
                         .then((QuerySnapshot querySnapshot) {
-                      querySnapshot.docs.forEach((doc) {
-                        print(doc["phone_number"]);
-                      });
+                      if (querySnapshot.size == 0) {
+                        print("There are No data ");
+                      } else {
+                        querySnapshot.docs.forEach((doc) {
+                          print(doc["phone_number"]);
+                          print(doc["name"]);
+                        });
+                      }
                     }).catchError(
                             (error) => print("Failed to add user: $error"));
                   } catch (e) {
