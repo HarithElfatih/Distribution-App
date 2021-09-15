@@ -1,61 +1,30 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:distribution/shared/constant.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoder/geocoder.dart';
 
 class register_customer extends StatefulWidget {
   var customer_phone_number;
-  register_customer({Key mykey, this.customer_phone_number})
-      : super(key: mykey);
+  var state_name = '';
+  var district_name = '';
+
+  register_customer({
+    Key mykey,
+    this.customer_phone_number,
+    this.state_name,
+    this.district_name,
+  }) : super(key: mykey);
   @override
   _register_customerState createState() =>
-      _register_customerState(customer_phone_number);
+      _register_customerState(customer_phone_number, state_name, district_name);
 }
 
 class _register_customerState extends State<register_customer> {
+  _register_customerState(customer_phone_number, state_name, district_name);
+
   final _formkey = GlobalKey<FormState>();
   String customer_name;
   String store_name;
-  String state;
-  String location;
-  Position position;
-  _register_customerState(customer_phone_number);
-
-  Future fetchPosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-    Position currentposition = await Geolocator.getCurrentPosition();
-    setState(() async {
-      position = currentposition;
-      final coordinates =
-          new Coordinates(currentposition.latitude, currentposition.longitude);
-      var addresses =
-          await Geocoder.local.findAddressesFromCoordinates(coordinates);
-      var first = addresses.first;
-      print(
-          ' ${first.locality}, ${first.adminArea},${first.subLocality}, ${first.subAdminArea},${first.addressLine}, ${first.featureName},${first.thoroughfare}, ${first.subThoroughfare}');
-      //return first;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,16 +56,6 @@ class _register_customerState extends State<register_customer> {
                       },
                     ),
                     SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: <Widget>[
-                        Text("Phone Number:",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(widget.customer_phone_number,
-                            style: TextStyle(fontWeight: FontWeight.bold))
-                      ],
-                    ),
-                    SizedBox(height: 20),
                     TextFormField(
                       decoration:
                           textInputDecoration.copyWith(hintText: "Store Name"),
@@ -107,38 +66,68 @@ class _register_customerState extends State<register_customer> {
                       },
                     ),
                     SizedBox(height: 20),
-                    TextFormField(
-                      decoration:
-                          textInputDecoration.copyWith(hintText: "State Name"),
-                      validator: (val) =>
-                          val.isEmpty ? "Please Enter State Name" : null,
-                      onChanged: (val) {
-                        setState(() => state = val);
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    Text(position == null ? 'Location' : position.toString()),
-                    ElevatedButton(
-                        onPressed: () => fetchPosition(),
-                        child: Text('Find Location')),
-                    TextFormField(
-                      decoration: textInputDecoration.copyWith(
-                          hintText: "Enter Location By GPS"),
-                      validator: (val) =>
-                          val.isEmpty ? "Please Enter Location" : null,
-                      onChanged: (val) {
-                        setState(
-                          () => location = val,
-                        );
-                      },
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Phone Number:",
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(widget.customer_phone_number,
+                                style: TextStyle(fontWeight: FontWeight.bold))
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("State Name:",
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(widget.state_name,
+                                style: TextStyle(fontWeight: FontWeight.bold))
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text('District',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(widget.district_name,
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ],
                     ),
                     SizedBox(height: 20),
                     RaisedButton(
                       color: Colors.pink,
-                      child:
-                          Text("Enter", style: TextStyle(color: Colors.white)),
+                      child: Text("Register",
+                          style: TextStyle(color: Colors.white)),
                       onPressed: () async {
-                        if (_formkey.currentState.validate()) {}
+                        DateTime now = new DateTime.now();
+                        DateTime date =
+                            new DateTime(now.year, now.month, now.day);
+                        final user = FirebaseAuth.instance.currentUser.email;
+                        if (_formkey.currentState.validate()) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Saving Customer Information")));
+                          FirebaseFirestore.instance
+                              .collection('customers')
+                              .add({
+                                "Creation_date": date,
+                                "customer_name": customer_name,
+                                "store_name": store_name,
+                                "phone_number": widget.customer_phone_number,
+                                "district_name": widget.district_name,
+                                "state_name": widget.state_name,
+                                "created_by": user,
+                              })
+                              .then((value) => Navigator.pop(context))
+                              .catchError((error) => print(
+                                  "Faild in adding customer because of $error"));
+                        }
                       },
                     ),
                   ]),
