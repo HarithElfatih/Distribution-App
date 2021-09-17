@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:distribution/shared/constant.dart';
+import 'package:intl/intl.dart';
 
 class register_customer extends StatefulWidget {
   var customer_phone_number;
@@ -92,7 +93,7 @@ class _register_customerState extends State<register_customer> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text('District',
+                            Text('District Name:',
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             Text(widget.district_name,
                                 style: TextStyle(fontWeight: FontWeight.bold)),
@@ -107,8 +108,8 @@ class _register_customerState extends State<register_customer> {
                           style: TextStyle(color: Colors.white)),
                       onPressed: () async {
                         DateTime now = new DateTime.now();
-                        DateTime date =
-                            new DateTime(now.year, now.month, now.day);
+                        var formatter = new DateFormat('dd-MM-yyyy hh:mm a');
+                        String formattedDate = formatter.format(now);
                         final user = FirebaseAuth.instance.currentUser.email;
                         if (_formkey.currentState.validate()) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -116,13 +117,14 @@ class _register_customerState extends State<register_customer> {
                           FirebaseFirestore.instance
                               .collection('customers')
                               .add({
-                                "Creation_date": date,
+                                "Creation_date": formattedDate,
                                 "customer_name": customer_name,
                                 "store_name": store_name,
                                 "phone_number": widget.customer_phone_number,
                                 "district_name": widget.district_name,
                                 "state_name": widget.state_name,
                                 "created_by": user,
+                                "last_purchase_date": "New customer",
                               })
                               .then((value) => Navigator.pop(context))
                               .catchError((error) => print(

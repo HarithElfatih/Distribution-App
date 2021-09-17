@@ -40,6 +40,7 @@ dependencies:
   location_permissions: ^4.0.0
   geocoding: ^2.0.1
   geocoder: ^0.2.1
+  intl: ^0.17.0
   
 
 

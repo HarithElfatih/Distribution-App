@@ -1,3 +1,4 @@
+import 'package:distribution/screens/home/my_customers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:distribution/services/auth.dart';
@@ -118,15 +119,8 @@ class Home extends StatelessWidget {
         // When navigating to the "/" route, build the FirstScreen widget.
         '/': (context) => DashboardItems(),
         '/sellproduct': (context) => GetCustomer(),
-        '/second': (context) => SecondScreen(),
+        '/second': (context) => my_customers(),
       },
     );
-  }
-}
-
-class SecondScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Text("Second Screen");
   }
 }
