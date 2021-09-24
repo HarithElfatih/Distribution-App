@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:distribution/Models/userModel.dart';
+import 'package:distribution/screens/home/sell_category/catalogProductCard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -50,5 +52,14 @@ class AuthService {
       print(e.toString());
       return null;
     }
+  }
+
+  Stream<List<Product>> getAllproducts() {
+    return FirebaseFirestore.instance
+        .collection("products")
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => Product.fromSnapshot(doc)).toList();
+    });
   }
 }
