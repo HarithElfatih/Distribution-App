@@ -36,9 +36,8 @@ class _sell_productState extends State<sell_product> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
-      padding: EdgeInsets.symmetric(vertical: 70, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
       child: Form(
-        key: _formkey,
         child: Container(
           alignment: Alignment.center,
           child: Column(children: <Widget>[
@@ -48,7 +47,7 @@ class _sell_productState extends State<sell_product> {
                     color: Colors.purple,
                     fontSize: 17,
                     fontWeight: FontWeight.bold)),
-            SizedBox(height: 40),
+            SizedBox(height: 20),
             Column(
               children: <Widget>[
                 Row(

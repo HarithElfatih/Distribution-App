@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cart/flutter_cart.dart';
+import 'package:flutter_cart/model/cart_model.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({Key key}) : super(key: key);
@@ -29,6 +30,10 @@ class _CartPageState extends State<CartPage> {
         body: ListView.builder(
             itemCount: cart.cartItem.length,
             itemBuilder: (context, int index) {
+              cart.cartItem.forEach((element) {
+                print(cart.cartItem.length);
+              });
+
               return Container(
                   child: Card(
                 child: ListTile(

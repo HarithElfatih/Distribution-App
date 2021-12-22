@@ -1,79 +1,82 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:distribution/services/auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_cart/flutter_cart.dart';
+import 'package:flutter_cart/model/cart_model.dart';
 
 class Product {
-  final int id;
-  final String product_name;
-  final double price;
-  int qty;
+  final dynamic id;
+  final dynamic product_name;
+  final dynamic price;
+  dynamic qty;
 
   Product({this.id, this.product_name, this.price, this.qty});
-
-  static Product fromSnapshot(DocumentSnapshot snap) {
-    Product product = Product(
-        product_name: snap['product_name'],
-        price: snap['product_price'],
-        qty: snap['user_stock']);
-    return product;
-  }
-
-  static List<Product> _products = [
-    Product(id: 1, product_name: "Product 1", price: 20.0, qty: 100),
-    Product(id: 2, product_name: "Product 2", price: 40.0, qty: 120),
-    Product(id: 3, product_name: "Product 3", price: 20.0, qty: 130),
-    Product(id: 4, product_name: "Product 4", price: 40.0, qty: 150),
-  ];
 }
 
-class catalogProducts extends StatelessWidget {
+class catalogProducts extends StatefulWidget {
   const catalogProducts({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Flexible(
-        child: ListView.builder(
-            itemCount: Product._products.length,
-            itemBuilder: (BuildContext context, int index) {
-              return CatalogProductCard(index: index);
-            }));
-  }
+  _catalogProductsState createState() => _catalogProductsState();
 }
 
-class CatalogProductCard extends StatelessWidget {
-  final int index;
-  CatalogProductCard({Key key, this.index}) : super(key: key);
-  var cart = FlutterCart();
+class _catalogProductsState extends State<catalogProducts> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(Product._products[index].product_name,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-          Text("${Product._products[index].price} SDG",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-          OutlineButton(
-              child: Text("Add"),
-              onPressed: () {
-                cart.addToCart(
-                    productId: Product._products[index].product_name,
-                    unitPrice: Product._products[index].price,
-                    quantity: Product._products[index].qty);
-                print(cart.cartItem.isEmpty);
-              }),
-          OutlineButton(
-              child: Text("Remove"),
-              onPressed: () {
-                print(cart.cartItem.length);
-                cart.deleteAllCart();
-              })
-        ],
-      ),
-    );
+    var cart = FlutterCart();
+    cart.deleteAllCart();
+    final user_email = FirebaseAuth.instance.currentUser.email;
+    return new FutureBuilder<QuerySnapshot>(
+        future: FirebaseFirestore.instance
+            .collection('users')
+            .doc(user_email)
+            .collection('Products')
+            .where("product_stock", isGreaterThanOrEqualTo: 1)
+            .get(),
+        // ignore: missing_return
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.data == null || snapshot.data.docs.length == 0) {
+            return Center(child: Text('Your Stock of Products is Empty'));
+          }
+          if (snapshot.hasData) {
+            final List<DocumentSnapshot> documents = snapshot.data.docs;
+            return Flexible(
+                child: ListView(
+                    children: documents
+                        .map((doc) => Card(
+                                child: new ListTile(
+                              title: new Text("${doc['product_name']}"),
+                              subtitle:
+                                  new Text("Stock: ${doc['product_stock']}"),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text("\$ ${doc['product_price']}",
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold)),
+                                  IconButton(
+                                      onPressed: () {
+                                        cart.deleteItemFromCart(cart.cartItem
+                                            .indexWhere((element) => true));
+                                      },
+                                      icon: Icon(Icons.remove)),
+                                  IconButton(
+                                      onPressed: () {
+                                        cart.addToCart(
+                                            productId: doc["product_name"],
+                                            unitPrice: doc["product_price"],
+                                            quantity: doc["product_stock"]);
+                                        print(cart.cartItem.isEmpty);
+                                      },
+                                      icon: Icon(Icons.add)),
+                                ],
+                              ),
+                            )))
+                        .toList()));
+          }
+        });
   }
 }

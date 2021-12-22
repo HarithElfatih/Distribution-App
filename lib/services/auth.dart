@@ -53,13 +53,4 @@ class AuthService {
       return null;
     }
   }
-
-  Stream<List<Product>> getAllproducts() {
-    return FirebaseFirestore.instance
-        .collection("products")
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) => Product.fromSnapshot(doc)).toList();
-    });
-  }
 }
