@@ -34,14 +34,19 @@ class _CartPageState extends State<CartPage> {
                 print(cart.cartItem.length);
               });
 
-              return Container(
+              return Flexible(
                   child: Card(
-                child: ListTile(
-                  tileColor: Colors.grey[300],
-                  title: Text(cart.cartItem[index].productId),
-                  subtitle: Text(cart.cartItem[index].unitPrice.toString()),
-                ),
-              ));
+                      child: ListTile(
+                tileColor: Colors.grey[300],
+                title: Text(cart.cartItem[index].productId),
+                subtitle:
+                    Text("Price: ${cart.cartItem[index].unitPrice.toString()}"),
+                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Text("\$ ${cart.cartItem[index].subTotal.toString()}",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                ]),
+              )));
             }),
       );
     }

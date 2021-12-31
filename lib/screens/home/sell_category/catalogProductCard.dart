@@ -10,7 +10,8 @@ class Product {
   final dynamic price;
   dynamic qty;
 
-  Product({this.id, this.product_name, this.price, this.qty});
+  Product(QueryDocumentSnapshot<Object> element,
+      {this.id, this.product_name, this.price, this.qty});
 }
 
 class catalogProducts extends StatefulWidget {
@@ -21,11 +22,13 @@ class catalogProducts extends StatefulWidget {
 }
 
 class _catalogProductsState extends State<catalogProducts> {
+  bool showTextForm = false;
+  var cart = FlutterCart();
+
   @override
   Widget build(BuildContext context) {
-    var cart = FlutterCart();
-    cart.deleteAllCart();
     final user_email = FirebaseAuth.instance.currentUser.email;
+
     return new FutureBuilder<QuerySnapshot>(
         future: FirebaseFirestore.instance
             .collection('users')
@@ -42,6 +45,7 @@ class _catalogProductsState extends State<catalogProducts> {
           }
           if (snapshot.hasData) {
             final List<DocumentSnapshot> documents = snapshot.data.docs;
+
             return Flexible(
                 child: ListView(
                     children: documents
@@ -57,21 +61,28 @@ class _catalogProductsState extends State<catalogProducts> {
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold)),
-                                  IconButton(
-                                      onPressed: () {
-                                        cart.deleteItemFromCart(cart.cartItem
-                                            .indexWhere((element) => true));
-                                      },
-                                      icon: Icon(Icons.remove)),
-                                  IconButton(
-                                      onPressed: () {
-                                        cart.addToCart(
-                                            productId: doc["product_name"],
-                                            unitPrice: doc["product_price"],
-                                            quantity: doc["product_stock"]);
-                                        print(cart.cartItem.isEmpty);
-                                      },
-                                      icon: Icon(Icons.add)),
+                                  if (cart.cartItem.any((element) =>
+                                      element.productId == doc['product_name']))
+                                    IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            cart.deleteItemFromCart(cart
+                                                .cartItem
+                                                .indexWhere((element) => true));
+                                          });
+                                        },
+                                        icon: Icon(Icons.remove))
+                                  else
+                                    IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            cart.addToCart(
+                                                productId: doc["product_name"],
+                                                unitPrice: doc["product_price"],
+                                                quantity: doc["product_stock"]);
+                                          });
+                                        },
+                                        icon: Icon(Icons.add)),
                                 ],
                               ),
                             )))
