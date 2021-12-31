@@ -61,17 +61,33 @@ class _catalogProductsState extends State<catalogProducts> {
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold)),
+                                  IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          cart.deleteItemFromCart(cart.cartItem
+                                              .indexWhere((element) =>
+                                                  element.productId ==
+                                                  doc['product_name']));
+                                        });
+                                      },
+                                      icon: Icon(Icons.remove_circle,
+                                          color: Colors.red)),
                                   if (cart.cartItem.any((element) =>
                                       element.productId == doc['product_name']))
-                                    IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            cart.deleteItemFromCart(cart
-                                                .cartItem
-                                                .indexWhere((element) => true));
-                                          });
-                                        },
-                                        icon: Icon(Icons.remove))
+                                    Container(
+                                        color: Colors.blue.shade100,
+                                        height: 50.0,
+                                        width: 50.0,
+                                        child: TextFormField(
+                                          keyboardType: TextInputType.number,
+                                          autofocus: false,
+                                          initialValue: '0',
+                                          textAlign: TextAlign.center,
+                                          style: new TextStyle(
+                                              fontWeight: FontWeight.normal,
+                                              color: Colors.black,
+                                              fontSize: 15),
+                                        ))
                                   else
                                     IconButton(
                                         onPressed: () {
@@ -82,7 +98,10 @@ class _catalogProductsState extends State<catalogProducts> {
                                                 quantity: doc["product_stock"]);
                                           });
                                         },
-                                        icon: Icon(Icons.add)),
+                                        icon: Icon(
+                                          Icons.add_circle,
+                                          color: Colors.green,
+                                        )),
                                 ],
                               ),
                             )))
