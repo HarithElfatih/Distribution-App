@@ -22,7 +22,6 @@ class catalogProducts extends StatefulWidget {
 }
 
 class _catalogProductsState extends State<catalogProducts> {
-  bool showTextForm = false;
   var cart = FlutterCart();
 
   @override
@@ -61,47 +60,39 @@ class _catalogProductsState extends State<catalogProducts> {
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold)),
-                                  IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          cart.deleteItemFromCart(cart.cartItem
-                                              .indexWhere((element) =>
-                                                  element.productId ==
-                                                  doc['product_name']));
-                                        });
-                                      },
-                                      icon: Icon(Icons.remove_circle,
-                                          color: Colors.red)),
-                                  if (cart.cartItem.any((element) =>
-                                      element.productId == doc['product_name']))
-                                    Container(
-                                        color: Colors.blue.shade100,
-                                        height: 50.0,
-                                        width: 50.0,
-                                        child: TextFormField(
-                                          keyboardType: TextInputType.number,
-                                          autofocus: false,
-                                          initialValue: '0',
-                                          textAlign: TextAlign.center,
-                                          style: new TextStyle(
-                                              fontWeight: FontWeight.normal,
-                                              color: Colors.black,
-                                              fontSize: 15),
-                                        ))
-                                  else
-                                    IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            cart.addToCart(
-                                                productId: doc["product_name"],
-                                                unitPrice: doc["product_price"],
-                                                quantity: doc["product_stock"]);
-                                          });
-                                        },
-                                        icon: Icon(
-                                          Icons.add_circle,
-                                          color: Colors.green,
-                                        )),
+                                  (cart.cartItem.any((element) =>
+                                          element.productId ==
+                                              doc['product_name'] ||
+                                          element.quantity == 0))
+                                      ? IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              cart.deleteItemFromCart(cart
+                                                  .cartItem
+                                                  .indexWhere((element) =>
+                                                      element.productId ==
+                                                      doc['product_name']));
+                                            });
+                                          },
+                                          icon: Icon(Icons.remove_circle,
+                                              color: Colors.red))
+                                      : IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              cart.addToCart(
+                                                  productId:
+                                                      doc["product_name"],
+                                                  unitPrice:
+                                                      doc["product_price"],
+                                                  quantity: 1,
+                                                  uniqueCheck:
+                                                      doc["product_stock"]);
+                                            });
+                                          },
+                                          icon: Icon(
+                                            Icons.add_circle,
+                                            color: Colors.green,
+                                          )),
                                 ],
                               ),
                             )))
