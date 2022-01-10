@@ -107,8 +107,15 @@ class _sell_productState extends State<sell_product> {
                 color: Colors.pink,
                 child: Text("Check Out", style: TextStyle(color: Colors.white)),
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => CartPage()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CartPage(
+                                customer_name: widget.customer_name,
+                                customer_phone_number:
+                                    widget.customer_phone_number,
+                                state_name: widget.state_name,
+                              )));
                 }),
           ]),
         ),
