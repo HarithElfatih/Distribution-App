@@ -103,6 +103,7 @@ class _CartPageState extends State<CartPage> {
             RaisedButton(
                 onPressed: () async {
                   List products_List = [];
+
                   for (int i = 0; i < cart.cartItem.length; i++)
                     products_List.add({
                       "product_name": cart.cartItem.elementAt(i).productId,
@@ -110,7 +111,7 @@ class _CartPageState extends State<CartPage> {
                       "quantity": cart.cartItem.elementAt(i).quantity,
                       "sub total": cart.cartItem.elementAt(i).subTotal
                     });
-                  // print(products_List);
+
                   /* Adding the operation Details to DB */
                   FirebaseFirestore.instance.collection('sales').add({
                     "Creation_date": formattedDate,
@@ -120,33 +121,66 @@ class _CartPageState extends State<CartPage> {
                     "created_by": user,
                     "Sale Details": FieldValue.arrayUnion(products_List),
                     "Total Amount": cart.getTotalAmount()
-                  });
-                  cart.cartItem.forEach((element) {
-                    element.uniqueCheck =
-                        element.uniqueCheck - element.quantity;
-                  });
-                  /* Deducting the quantity of the product from DB */
-                  FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user)
-                      .collection('Products')
-                      .get()
-                      .then((documents) {
-                    documents.docs.forEach((element) {
-                      cart.cartItem.forEach((item) {
-                        if (item.productId == element.data()['product_name']) {
-                          FirebaseFirestore.instance
-                              .collection('users')
-                              .doc(user)
-                              .collection('Products')
-                              .doc(element.id)
-                              .update({'product_stock': item.uniqueCheck});
-                        }
-                      });
+                  }).then((value) {
+                    cart.cartItem.forEach((element) {
+                      element.uniqueCheck =
+                          element.uniqueCheck - element.quantity;
                     });
-                  }).then((value) => Navigator.of(context)
-                          .pushNamedAndRemoveUntil(
-                              '/', (Route<dynamic> route) => false));
+                    /* Deducting the quantity of the product from the DB */
+                    FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(user)
+                        .collection('Products')
+                        .get()
+                        .then((documents) {
+                      documents.docs.forEach((element) {
+                        cart.cartItem.forEach((item) {
+                          if (item.productId ==
+                              element.data()['product_name']) {
+                            FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(user)
+                                .collection('Products')
+                                .doc(element.id)
+                                .update({'product_stock': item.uniqueCheck});
+                          }
+                        });
+                      });
+                    }).then((value) {
+                      /* adding the total amount of the operation to user total cash */
+                      FirebaseFirestore.instance
+                          .collection("users")
+                          .doc(user)
+                          .get()
+                          .then((result) {
+                        var x =
+                            result.data()["total_cash"] + cart.getTotalAmount();
+                        FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(user)
+                            .update({'total_cash': x});
+                      }).then((value) {
+                        /* updating the last date of purchase in customer profile in the DB */
+                        FirebaseFirestore.instance
+                            .collection('customers')
+                            .where('phone_number',
+                                isEqualTo: widget.customer_phone_number)
+                            .get()
+                            .then((value) {
+                          value.docs.forEach((element) {
+                            FirebaseFirestore.instance
+                                .collection("customers")
+                                .doc(element.id)
+                                .update({"last_purchase_date": formattedDate});
+                          });
+                        }).then((value) {
+                          cart.deleteAllCart();
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                              '/', (Route<dynamic> route) => false);
+                        }); // fourth query //
+                      }); // third query
+                    }); // second query //
+                  }); // first query//
                 },
                 color: Colors.pink,
                 child: Text("Complete", style: TextStyle(color: Colors.white))),
