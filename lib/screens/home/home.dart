@@ -1,4 +1,5 @@
 import 'package:distribution/screens/home/my_customers.dart';
+import 'package:distribution/screens/home/sales_archive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:distribution/services/auth.dart';
@@ -13,10 +14,11 @@ List<StaggeredTile> _staggeredTiles = const <StaggeredTile>[
 
 List<Widget> _tiles = const <Widget>[
   const MyItems(Icons.done_all, "Sell A Product", 0xffed622b, "/sellproduct"),
-  const MyItems(Icons.people_rounded, "My Customers", 0xff26cb3c, "/second"),
+  const MyItems(
+      Icons.people_rounded, "My Customers", 0xff26cb3c, "/myCustomers"),
   const MyItems(
       Icons.account_circle_outlined, "My Profile", 0xffff3266, "Third"),
-  const MyItems(Icons.money, "Sales Archive", 0xff4527a0, "Fourth"),
+  const MyItems(Icons.money, "Sales Archive", 0xff4527a0, "/sales_archive"),
 ];
 
 class DashboardItems extends StatelessWidget {
@@ -119,7 +121,8 @@ class Home extends StatelessWidget {
         // When navigating to the "/" route, build the FirstScreen widget.
         '/': (context) => DashboardItems(),
         '/sellproduct': (context) => GetCustomer(),
-        '/second': (context) => my_customers(),
+        '/myCustomers': (context) => my_customers(),
+        '/sales_archive': (context) => sales_archive(),
       },
     );
   }

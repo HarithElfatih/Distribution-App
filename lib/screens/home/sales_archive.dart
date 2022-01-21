@@ -2,14 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class my_customers extends StatelessWidget {
+class sales_archive extends StatelessWidget {
+  const sales_archive({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final user_email = FirebaseAuth.instance.currentUser.email;
+
     return Container(
       child: FutureBuilder(
         future: FirebaseFirestore.instance
-            .collection("customers")
+            .collection("sales")
             .where("created_by", isEqualTo: user_email)
             .get(),
         builder: (context, snapshot) {
@@ -19,7 +22,7 @@ class my_customers extends StatelessWidget {
             // ignore: missing_return
             final List<DocumentSnapshot> documents = snapshot.data.docs;
             return Scaffold(
-                appBar: AppBar(title: Text("My Customers List")),
+                appBar: AppBar(title: Text("My Sales Archive")),
                 body: Container(
                     padding: EdgeInsets.only(top: 30),
                     child: ListView(
@@ -29,21 +32,47 @@ class my_customers extends StatelessWidget {
                                     tileColor: Colors.grey[300],
                                     title: Text(doc['customer_name'],
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    subtitle: Text(doc['store_name']),
+                                          fontWeight: FontWeight.bold,
+                                        )),
+                                    subtitle: Text(
+                                        doc['Creation_date']
+                                            .toString()
+                                            .substring(0, 10),
+                                        style: TextStyle(
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14)),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          " Cash:${doc['total_amount'].toString()}",
+                                          style: TextStyle(
+                                              color: Colors.yellow[900],
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                            "Bouns:${doc['operation_bouns'].toString()}",
+                                            style: TextStyle(
+                                                color: Colors.green[900],
+                                                fontWeight: FontWeight.bold))
+                                      ],
+                                    ),
                                     onTap: () {
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  customer_details(
-                                                    doc['customer_name'],
-                                                    doc['phone_number'],
-                                                    doc['store_name'],
-                                                    doc['state_name'],
-                                                    doc['district_name'],
+                                                  Sale_details(
                                                     doc['Creation_date'],
-                                                    doc['last_purchase_date'],
+                                                    doc['created_by'],
+                                                    doc['customer_name'],
+                                                    doc['operation_bouns'],
+                                                    doc['phone_number'],
+                                                    doc['sale_details'],
+                                                    doc['state_name'],
+                                                    doc['total_amount'],
                                                   )));
                                     },
                                   ),
@@ -56,28 +85,32 @@ class my_customers extends StatelessWidget {
   }
 }
 
-class customer_details extends StatelessWidget {
-  String customer_name;
-  String customer_phone_number;
-  String Store_name;
-  String state_name;
-  String district_name;
+class Sale_details extends StatelessWidget {
   dynamic creation_date;
+  String created_by;
+  String customer_name;
+  dynamic operation_bouns;
+  String customer_phone_number;
+  List sale_details;
+  String state_name;
+  dynamic total_amount;
+
   dynamic last_purchase_date;
 
-  customer_details(
-      this.customer_name,
-      this.customer_phone_number,
-      this.Store_name,
-      this.state_name,
-      this.district_name,
-      this.creation_date,
-      this.last_purchase_date);
+  Sale_details(
+    this.creation_date,
+    this.created_by,
+    this.customer_name,
+    this.operation_bouns,
+    this.customer_phone_number,
+    this.sale_details,
+    this.state_name,
+    this.total_amount,
+  );
 
   @override
   Widget build(BuildContext context) {
     final date1 = creation_date.toString();
-    final date2 = last_purchase_date.toString();
 
     return Scaffold(
         body: Container(
@@ -87,7 +120,7 @@ class customer_details extends StatelessWidget {
                 alignment: Alignment.center,
                 child: SingleChildScrollView(
                   child: Column(children: <Widget>[
-                    Text("Customer Details",
+                    Text("Sale Operation Details",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Colors.purple,
@@ -119,7 +152,7 @@ class customer_details extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text("Creation Date:",
+                            Text("Date of Sale Operation:",
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             Text(date1,
                                 style: TextStyle(fontWeight: FontWeight.bold))
@@ -129,9 +162,9 @@ class customer_details extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text("Store Name:",
+                            Text("Total Cash:",
                                 style: TextStyle(fontWeight: FontWeight.bold)),
-                            Text(Store_name,
+                            Text(total_amount.toString(),
                                 style: TextStyle(fontWeight: FontWeight.bold))
                           ],
                         ),
@@ -139,9 +172,9 @@ class customer_details extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text('District Name:',
+                            Text('Earned Bouns:',
                                 style: TextStyle(fontWeight: FontWeight.bold)),
-                            Text(district_name,
+                            Text(operation_bouns.toString(),
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                           ],
                         ),
@@ -159,9 +192,9 @@ class customer_details extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text("Last Purchase Date:",
+                            Text("Created By:",
                                 style: TextStyle(fontWeight: FontWeight.bold)),
-                            Text(date2,
+                            Text(created_by,
                                 style: TextStyle(fontWeight: FontWeight.bold))
                           ],
                         ),

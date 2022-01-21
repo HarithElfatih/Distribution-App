@@ -86,7 +86,9 @@ class _catalogProductsState extends State<catalogProducts> {
                                                       doc["product_price"],
                                                   quantity: 1,
                                                   uniqueCheck:
-                                                      doc["product_stock"]);
+                                                      doc["product_stock"],
+                                                  productDetailsObject:
+                                                      doc['item_bouns']);
                                             });
                                           },
                                           icon: Icon(

@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:distribution/shared/constant.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cart/flutter_cart.dart';
-import 'package:flutter_cart/model/cart_model.dart';
 import 'package:intl/intl.dart';
+import 'package:sms_maintained/sms.dart';
 
 class CartPage extends StatefulWidget {
   var customer_name;
@@ -23,11 +22,14 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  bool button_loading = false;
+
   @override
   Widget build(BuildContext context) {
     var cart = FlutterCart();
     DateTime now = new DateTime.now();
     var formatter = new DateFormat('dd-MM-yyyy hh:mm a');
+    dynamic operation_bouns = 0;
     String formattedDate = formatter.format(now);
     final user = FirebaseAuth.instance.currentUser.email;
     if (cart.cartItem.isEmpty) {
@@ -51,9 +53,6 @@ class _CartPageState extends State<CartPage> {
                 shrinkWrap: true,
                 itemCount: cart.cartItem.length,
                 itemBuilder: (context, int index) {
-                  /*  cart.cartItem.forEach((element) {
-                    print(cart.cartItem.length);
-                  }); */
                   return Card(
                     child: ListTile(
                       tileColor: Colors.grey[300],
@@ -100,90 +99,115 @@ class _CartPageState extends State<CartPage> {
                     fontSize: 18,
                     color: Colors.red)),
             SizedBox(height: 10),
-            RaisedButton(
-                onPressed: () async {
-                  List products_List = [];
-
-                  for (int i = 0; i < cart.cartItem.length; i++)
-                    products_List.add({
-                      "product_name": cart.cartItem.elementAt(i).productId,
-                      "price": cart.cartItem.elementAt(i).unitPrice,
-                      "quantity": cart.cartItem.elementAt(i).quantity,
-                      "sub total": cart.cartItem.elementAt(i).subTotal
-                    });
-
-                  /* Adding the operation Details to DB */
-                  FirebaseFirestore.instance.collection('sales').add({
-                    "Creation_date": formattedDate,
-                    "customer_name": widget.customer_name,
-                    "phone_number": widget.customer_phone_number,
-                    "state_name": widget.state_name,
-                    "created_by": user,
-                    "Sale Details": FieldValue.arrayUnion(products_List),
-                    "Total Amount": cart.getTotalAmount()
-                  }).then((value) {
-                    cart.cartItem.forEach((element) {
-                      element.uniqueCheck =
-                          element.uniqueCheck - element.quantity;
-                    });
-                    /* Deducting the quantity of the product from the DB */
-                    FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(user)
-                        .collection('Products')
-                        .get()
-                        .then((documents) {
-                      documents.docs.forEach((element) {
-                        cart.cartItem.forEach((item) {
-                          if (item.productId ==
-                              element.data()['product_name']) {
-                            FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(user)
-                                .collection('Products')
-                                .doc(element.id)
-                                .update({'product_stock': item.uniqueCheck});
-                          }
-                        });
+            button_loading
+                ? CircularProgressIndicator()
+                : RaisedButton(
+                    onPressed: () {
+                      setState(() {
+                        button_loading = true;
                       });
-                    }).then((value) {
-                      /* adding the total amount of the operation to user total cash */
-                      FirebaseFirestore.instance
-                          .collection("users")
-                          .doc(user)
-                          .get()
-                          .then((result) {
-                        var x =
-                            result.data()["total_cash"] + cart.getTotalAmount();
+                      cart.cartItem.forEach((element) {
+                        var subBouns =
+                            element.productDetails * element.quantity;
+                        operation_bouns = operation_bouns + subBouns;
+                        print(operation_bouns);
+                      });
+                      List products_List = [];
+
+                      for (int i = 0; i < cart.cartItem.length; i++)
+                        products_List.add({
+                          "product_name": cart.cartItem.elementAt(i).productId,
+                          "price": cart.cartItem.elementAt(i).unitPrice,
+                          "quantity": cart.cartItem.elementAt(i).quantity,
+                          "sub total": cart.cartItem.elementAt(i).subTotal,
+                        });
+
+                      /* Adding the operation Details to DB */
+                      FirebaseFirestore.instance.collection('sales').add({
+                        "Creation_date": formattedDate,
+                        "customer_name": widget.customer_name,
+                        "phone_number": widget.customer_phone_number,
+                        "state_name": widget.state_name,
+                        "created_by": user,
+                        "sale_details": FieldValue.arrayUnion(products_List),
+                        "total_amount": cart.getTotalAmount(),
+                        "operation_bouns": operation_bouns
+                      }).then((value) {
+                        cart.cartItem.forEach((element) {
+                          element.uniqueCheck =
+                              element.uniqueCheck - element.quantity;
+                        });
+                        /* Deducting the quantity of the product from the DB */
                         FirebaseFirestore.instance
                             .collection('users')
                             .doc(user)
-                            .update({'total_cash': x});
-                      }).then((value) {
-                        /* updating the last date of purchase in customer profile in the DB */
-                        FirebaseFirestore.instance
-                            .collection('customers')
-                            .where('phone_number',
-                                isEqualTo: widget.customer_phone_number)
+                            .collection('Products')
                             .get()
-                            .then((value) {
-                          value.docs.forEach((element) {
-                            FirebaseFirestore.instance
-                                .collection("customers")
-                                .doc(element.id)
-                                .update({"last_purchase_date": formattedDate});
+                            .then((documents) {
+                          documents.docs.forEach((element) {
+                            cart.cartItem.forEach((item) {
+                              if (item.productId ==
+                                  element.data()['product_name']) {
+                                FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(user)
+                                    .collection('Products')
+                                    .doc(element.id)
+                                    .update(
+                                        {'product_stock': item.uniqueCheck});
+                              }
+                            });
                           });
                         }).then((value) {
-                          cart.deleteAllCart();
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/', (Route<dynamic> route) => false);
-                        }); // fourth query //
-                      }); // third query
-                    }); // second query //
-                  }); // first query//
-                },
-                color: Colors.pink,
-                child: Text("Complete", style: TextStyle(color: Colors.white))),
+                          /* adding the total amount of the operation to user total cash */
+                          FirebaseFirestore.instance
+                              .collection("users")
+                              .doc(user)
+                              .get()
+                              .then((result) {
+                            var x = result.data()["total_cash"] +
+                                cart.getTotalAmount();
+                            var y =
+                                result.data()['total_bouns'] + operation_bouns;
+
+                            FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(user)
+                                .update({'total_cash': x, 'total_bouns': y});
+                          }).then((value) {
+                            /* updating the last date of purchase in customer profile in the DB */
+                            FirebaseFirestore.instance
+                                .collection('customers')
+                                .where('phone_number',
+                                    isEqualTo: widget.customer_phone_number)
+                                .get()
+                                .then((value) {
+                              value.docs.forEach((element) {
+                                FirebaseFirestore.instance
+                                    .collection("customers")
+                                    .doc(element.id)
+                                    .update(
+                                        {"last_purchase_date": formattedDate});
+                              });
+                            }).then((value) {
+                              SmsSender sender = new SmsSender();
+                              String message =
+                                  '''Dear Customer, Thank you for choosing ELSheikh Industrial Products Company''';
+                              String address =
+                                  widget.customer_phone_number.toString();
+
+                              sender.sendSms(SmsMessage(address, message));
+                              cart.deleteAllCart();
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/', (Route<dynamic> route) => false);
+                            }); // fourth query //
+                          }); // third query
+                        }); // second query //
+                      }); // first query//
+                    },
+                    color: Colors.pink,
+                    child: Text("Complete",
+                        style: TextStyle(color: Colors.white))),
           ]),
         ),
       );
