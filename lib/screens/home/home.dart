@@ -1,4 +1,5 @@
 import 'package:distribution/screens/home/my_customers.dart';
+import 'package:distribution/screens/home/my_profile.dart';
 import 'package:distribution/screens/home/sales_archive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -17,7 +18,7 @@ List<Widget> _tiles = const <Widget>[
   const MyItems(
       Icons.people_rounded, "My Customers", 0xff26cb3c, "/myCustomers"),
   const MyItems(
-      Icons.account_circle_outlined, "My Profile", 0xffff3266, "Third"),
+      Icons.account_circle_outlined, "My Profile", 0xffff3266, "/my_profile"),
   const MyItems(Icons.money, "Sales Archive", 0xff4527a0, "/sales_archive"),
 ];
 
@@ -68,44 +69,43 @@ class MyItems extends StatelessWidget {
           onTap: () {
             Navigator.pushNamed(context, routeName);
           },
-          child: Center(
-              child: Padding(
-                  padding: EdgeInsets.all(9),
-                  child: Row(
+          child: Padding(
+              padding: EdgeInsets.all(9),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(9),
-                                child: Text(
-                                  heading,
-                                  style: TextStyle(
-                                    color: new Color(color),
-                                    fontSize: 20,
-                                  ),
-                                ),
+                        Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Text(
+                              heading,
+                              style: TextStyle(
+                                color: new Color(color),
+                                fontSize: 20,
                               ),
                             ),
-
-                            //icon
-                            Material(
-                              color: new Color(color),
-                              borderRadius: BorderRadius.circular(24.0),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Icon(
-                                  icon,
-                                  size: 30,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ])))),
+
+                        //icon
+                        Material(
+                          color: new Color(color),
+                          borderRadius: BorderRadius.circular(24.0),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Icon(
+                              icon,
+                              size: 30,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ]))),
     );
   }
 }
@@ -122,6 +122,7 @@ class Home extends StatelessWidget {
         '/': (context) => DashboardItems(),
         '/sellproduct': (context) => GetCustomer(),
         '/myCustomers': (context) => my_customers(),
+        '/my_profile': (context) => my_profile(),
         '/sales_archive': (context) => sales_archive(),
       },
     );
