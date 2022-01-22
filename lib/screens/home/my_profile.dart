@@ -20,7 +20,7 @@ class _my_profileState extends State<my_profile> {
             // ignore: missing_return
             (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Scaffold(body: Center(child: CircularProgressIndicator()));
           } else if (snapshot.data.exists == false) {
             return Scaffold(
               body: Center(
@@ -85,6 +85,7 @@ class _my_profileState extends State<my_profile> {
                           child: Text(
                             "Current Saled Quantity: ${snapshot.data.get('total_quantity').toString()}",
                             style: TextStyle(
+                                color: Colors.blueGrey.shade500,
                                 letterSpacing: 2.0,
                                 fontWeight: FontWeight.bold),
                           ))),
@@ -158,8 +159,15 @@ class _my_profileState extends State<my_profile> {
                     ),
                   ),
                   SizedBox(
-                    height: 20,
+                    height: 10,
                   ),
+                  Text("Your Stock",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                      )),
+                  SizedBox(height: 10),
                   userProducts(),
                 ],
               ),
@@ -191,7 +199,8 @@ class _userProductsState extends State<userProducts> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.data == null || snapshot.data.docs.length == 0) {
-            return Center(child: Text('Your Stock of Products is Empty'));
+            return Scaffold(
+                body: Center(child: Text('Your Stock of Products is Empty')));
           }
           if (snapshot.hasData) {
             final List<DocumentSnapshot> documents = snapshot.data.docs;
@@ -210,6 +219,11 @@ class _userProductsState extends State<userProducts> {
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    Text("Bouns: ${doc['item_bouns']} \$ ",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w400)),
+                                    SizedBox(width: 10),
                                     Text("Price: ${doc['product_price']} \$ ",
                                         style: TextStyle(
                                             fontSize: 15,

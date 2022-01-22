@@ -25,47 +25,57 @@ class _SigninState extends State<Signin> {
         centerTitle: true,
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        decoration: new BoxDecoration(color: Colors.grey.shade300),
+        margin: EdgeInsets.only(
+            left: 10,
+            right: 10,
+            top: 20,
+            bottom: MediaQuery.of(context).viewInsets.top),
         child: Form(
           key: _formkey,
-          child: Column(children: <Widget>[
-            SizedBox(height: 20.0),
-            TextFormField(
-              decoration: textInputDecoration.copyWith(hintText: "Email"),
-              validator: (val) => val.isEmpty ? "Enter Your Email" : null,
-              onChanged: (val) {
-                setState(() => email = val);
-              },
-            ),
-            SizedBox(height: 20),
-            TextFormField(
-              decoration: textInputDecoration.copyWith(hintText: "Password"),
-              obscureText: true,
-              validator: (val) => val.isEmpty ? "Enter Your Password" : null,
-              onChanged: (val) {
-                setState(() => password = val);
-              },
-            ),
-            SizedBox(height: 20),
-            RaisedButton(
-              color: Colors.pink,
-              child: Text("Sign in", style: TextStyle(color: Colors.white)),
-              onPressed: () async {
-                if (_formkey.currentState.validate()) {
-                  dynamic result =
-                      await _auth.signIn(email: email, password: password);
-                  if (result == null) {
-                    setState(() => error = "هناك خطاْ في طلبك");
-                  }
-                }
-              },
-            ),
-            SizedBox(height: 10),
-            Text(
-              error,
-              style: TextStyle(color: Colors.red, fontSize: 14),
-            )
-          ]),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                TextFormField(
+                  decoration: textInputDecoration.copyWith(hintText: "Email"),
+                  validator: (val) => val.isEmpty ? "Enter Your Email" : null,
+                  onChanged: (val) {
+                    setState(() => email = val);
+                  },
+                ),
+                SizedBox(height: 20),
+                TextFormField(
+                  decoration:
+                      textInputDecoration.copyWith(hintText: "Password"),
+                  obscureText: true,
+                  validator: (val) =>
+                      val.isEmpty ? "Enter Your Password" : null,
+                  onChanged: (val) {
+                    setState(() => password = val);
+                  },
+                ),
+                SizedBox(height: 20),
+                RaisedButton(
+                  color: Colors.pink,
+                  child: Text("Sign in", style: TextStyle(color: Colors.white)),
+                  onPressed: () async {
+                    if (_formkey.currentState.validate()) {
+                      dynamic result =
+                          await _auth.signIn(email: email, password: password);
+                      if (result == null) {
+                        setState(() => error = "هناك خطاْ في طلبك");
+                      }
+                    }
+                  },
+                ),
+                Container(
+                  decoration: new BoxDecoration(color: Colors.yellow),
+                  child: Text(
+                    error,
+                    style: TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                ),
+              ]),
         ),
       ),
     );
