@@ -12,11 +12,11 @@ class my_customers extends StatelessWidget {
             .collection("customers")
             .where("created_by", isEqualTo: user_email)
             .get(),
+        // ignore: missing_return
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(body: Center(child: CircularProgressIndicator()));
-          } else if (snapshot.connectionState == ConnectionState.done ||
-              !snapshot.hasData) {
+          } else if (!snapshot.hasData) {
             return Scaffold(
               body: Center(
                   child: Column(
@@ -30,9 +30,9 @@ class my_customers extends StatelessWidget {
                 ],
               )),
             );
-          } else {
-            // ignore: missing_return
+          } else if (snapshot.hasData) {
             final List<DocumentSnapshot> documents = snapshot.data.docs;
+
             return Scaffold(
                 appBar: AppBar(title: Text("My Customers List")),
                 body: Container(
