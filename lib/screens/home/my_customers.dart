@@ -13,8 +13,23 @@ class my_customers extends StatelessWidget {
             .where("created_by", isEqualTo: user_email)
             .get(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(body: Center(child: CircularProgressIndicator()));
+          } else if (snapshot.connectionState == ConnectionState.done ||
+              !snapshot.hasData) {
+            return Scaffold(
+              body: Center(
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("You Don't Have Customers",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                  SizedBox(height: 10),
+                  Text("Try Adding New Customers")
+                ],
+              )),
+            );
           } else {
             // ignore: missing_return
             final List<DocumentSnapshot> documents = snapshot.data.docs;

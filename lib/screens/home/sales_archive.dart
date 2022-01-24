@@ -16,8 +16,23 @@ class sales_archive extends StatelessWidget {
             .where("created_by", isEqualTo: user_email)
             .get(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(body: Center(child: CircularProgressIndicator()));
+          } else if (snapshot.connectionState == ConnectionState.done ||
+              !snapshot.hasData) {
+            return Scaffold(
+              body: Center(
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("There is No Sale Operation",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                  SizedBox(height: 10),
+                  Text("Try To Sale Some Products")
+                ],
+              )),
+            );
           } else {
             // ignore: missing_return
             final List<DocumentSnapshot> documents = snapshot.data.docs;

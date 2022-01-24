@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:distribution/shared/constant.dart';
 import 'package:distribution/screens/home/sell_category/register_customer.dart';
 import 'package:distribution/screens/home/sell_category/sell_product.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoder/geocoder.dart';
 
 class GetCustomer extends StatefulWidget {
   @override
@@ -13,71 +12,24 @@ class GetCustomer extends StatefulWidget {
 
 class _GetCustomerState extends State<GetCustomer> {
   @override
-  void initState() {
-    // Note that you cannot use `async await` in  initState
-    fetchPosition().then((_) {
-      print("loadedddd");
-    });
-    super.initState();
-  }
-
   final _formkey = GlobalKey<FormState>();
+
   String phone_number = "";
   String error = "";
   String check_number = "";
-  String state_name = '';
-  String district_name = '';
   String customer_name = "";
   String store_name = "";
-  Position position;
+  String district_name = "";
+  String state_name = "";
 
   String validateMobile(String value) {
-    String pattern = r'(^(?:[0]9)?[0-9]{10}$)';
+    String pattern = r'(([0]+[19])([0-9]{8})$)';
     RegExp regExp = new RegExp(pattern);
 
     if (!regExp.hasMatch(value)) {
       return 'Please enter valid mobile number';
     }
     return null;
-  }
-
-  Future fetchPosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-    Position currentposition = await Geolocator.getCurrentPosition();
-    setState(() async {
-      position = currentposition;
-      final coordinates =
-          new Coordinates(currentposition.latitude, currentposition.longitude);
-      var addresses =
-          await Geocoder.local.findAddressesFromCoordinates(coordinates);
-      var first = addresses.first;
-
-      print('${first.adminArea}'); //stateName
-      print(' ${first.locality}'); //district_Name
-      print('${first.addressLine} '); //Full address
-      print(position); // Latitude: & Longitude
-      state_name = first.adminArea;
-      district_name = first.locality;
-    });
   }
 
   @override
@@ -117,8 +69,6 @@ class _GetCustomerState extends State<GetCustomer> {
                       onPressed: () async {
                         if (_formkey.currentState.validate()) {
                           check_number = validateMobile(phone_number);
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text("Checking Customer Phone Number")));
                           print(check_number);
                           if (check_number != null) {
                             error = check_number;
@@ -133,7 +83,10 @@ class _GetCustomerState extends State<GetCustomer> {
                                   .then((QuerySnapshot querySnapshot) {
                                 if (querySnapshot.size == 0) {
                                   print("There are No data ");
-
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              "Currently your Location is being processed")));
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -141,8 +94,6 @@ class _GetCustomerState extends State<GetCustomer> {
                                               register_customer(
                                                 customer_phone_number:
                                                     phone_number,
-                                                state_name: state_name,
-                                                district_name: district_name,
                                               )));
                                 } else {
                                   querySnapshot.docs.forEach((doc) {
@@ -151,6 +102,10 @@ class _GetCustomerState extends State<GetCustomer> {
                                     store_name = doc['store_name'];
                                     district_name = doc['district_name'];
                                     state_name = doc['state_name'];
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                "Getting Customer Information")));
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
