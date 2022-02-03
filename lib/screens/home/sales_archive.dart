@@ -15,6 +15,7 @@ class sales_archive extends StatelessWidget {
             .collection("sales")
             .where("created_by", isEqualTo: user_email)
             .get(),
+        // ignore: missing_return
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -32,8 +33,7 @@ class sales_archive extends StatelessWidget {
                 ],
               )),
             );
-          } else {
-            // ignore: missing_return
+          } else if (snapshot.hasData) {
             final List<DocumentSnapshot> documents = snapshot.data.docs;
             return Scaffold(
                 appBar: AppBar(title: Text("My Sales Archive")),

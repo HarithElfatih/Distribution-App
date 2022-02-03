@@ -180,6 +180,7 @@ class _register_customerState extends State<register_customer> {
                                 var formatter =
                                     new DateFormat('dd-MM-yyyy hh:mm a');
                                 String formattedDate = formatter.format(now);
+
                                 final user =
                                     FirebaseAuth.instance.currentUser.email;
                                 if (_formkey.currentState.validate()) {
@@ -210,6 +211,22 @@ class _register_customerState extends State<register_customer> {
                         ),
                       ),
                     )));
+          } else {
+            return Scaffold(
+                body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Wasn't able to fetch your current location",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                      )),
+                  SizedBox(height: 10),
+                  Text("Please check your Internet Connection")
+                ],
+              ),
+            ));
           }
         });
   }

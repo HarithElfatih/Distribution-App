@@ -30,6 +30,7 @@ class _CartPageState extends State<CartPage> {
     DateTime now = new DateTime.now();
     var formatter = new DateFormat('dd-MM-yyyy hh:mm a');
     dynamic operation_bouns = 0;
+    dynamic operation_quantity = 0;
     String formattedDate = formatter.format(now);
     final user = FirebaseAuth.instance.currentUser.email;
     if (cart.cartItem.isEmpty) {
@@ -107,10 +108,15 @@ class _CartPageState extends State<CartPage> {
                         button_loading = true;
                       });
                       cart.cartItem.forEach((element) {
+                        ///// Start Calculating Bouns //////
                         var subBouns =
                             element.productDetails * element.quantity;
                         operation_bouns = operation_bouns + subBouns;
                         print(operation_bouns);
+                        ///// Finish Calculating Bouns //////
+                        operation_quantity =
+                            operation_quantity + element.quantity;
+                        print(operation_quantity);
                       });
                       List products_List = [];
 
@@ -131,6 +137,7 @@ class _CartPageState extends State<CartPage> {
                         "created_by": user,
                         "sale_details": FieldValue.arrayUnion(products_List),
                         "total_amount": cart.getTotalAmount(),
+                        "total_quantity": operation_quantity,
                         "operation_bouns": operation_bouns
                       }).then((value) {
                         cart.cartItem.forEach((element) {
@@ -169,11 +176,17 @@ class _CartPageState extends State<CartPage> {
                                 cart.getTotalAmount();
                             var y =
                                 result.data()['total_bouns'] + operation_bouns;
+                            var z = result.data()['total_quantity'] +
+                                operation_quantity;
 
                             FirebaseFirestore.instance
                                 .collection('users')
                                 .doc(user)
-                                .update({'total_cash': x, 'total_bouns': y});
+                                .update({
+                              'total_cash': x,
+                              'total_bouns': y,
+                              'total_quantity': z
+                            });
                           }).then((value) {
                             /* updating the last date of purchase in customer profile in the DB */
                             FirebaseFirestore.instance

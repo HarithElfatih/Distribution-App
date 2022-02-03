@@ -16,7 +16,8 @@ class my_customers extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(body: Center(child: CircularProgressIndicator()));
-          } else if (!snapshot.hasData) {
+          } else if (snapshot.connectionState == ConnectionState.done &&
+              !snapshot.hasData) {
             return Scaffold(
               body: Center(
                   child: Column(
