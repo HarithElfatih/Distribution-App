@@ -1,3 +1,10 @@
+## Do following steps to Integrate you code with Firebase Backend:
+## 1. Go to the Firebase Console.
+## 2. Click on "Add project" and follow the instructions to create a new project.
+## 3. In the Firebase Console, go to "Project Overview" and click on the Android or iOS icon to add a new app. 
+## 4. Follow the instructions to register your app. You will need the package name of your app.
+## 5. After registering your app, download the google-services.json file for Android or the GoogleService-Info.plist file for iOS.
+## 6. Place the file here to integrate your app with Firebase and start using all of its functionalities.
 {
   "project_info": {
     "project_number": "800213470189",
@@ -14,20 +21,20 @@
       },
       "oauth_client": [
         {
-          "client_id": "800213470189-kd76m39mqb3ces7nm12frvgmqlnbp9m3.apps.googleusercontent.com",
+          "client_id": "",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAZhVk0n5gBy3DuQNCT7pEy5j4Pkx441k8"
+          "current_key": ""
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "800213470189-kd76m39mqb3ces7nm12frvgmqlnbp9m3.apps.googleusercontent.com",
+              "client_id": "",
               "client_type": 3
             }
           ]
