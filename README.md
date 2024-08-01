@@ -1,16 +1,24 @@
-# distribution
+# Distribution Mobile App
 
-A new Flutter project. The maim purpose of this app is to manage the distribution of company's products by it's distributors.
+This mobile app is developed using the Flutter Framework to efficiently manage the distribution of a company's products through various distributors.
 
-## Getting Started
+## Key Features
+- **User Roles:** Two distinct user roles (Admin and Distributor) with specific functionalities.
+  - **Admin:**
+    - Manage distributor accounts
+    - Handle product stock
+    - Monitor sales transactions
+    - Manage distributor customer profiles
+  - **Distributor:**
+    - View and manage personal inventory
+    - Create and manage customer profiles
+    - Record and track sales activities
 
-This project is a starting point for a Flutter application.
+## Technology Stack
+* **Frontend:** Flutter Framework for a responsive and user-friendly interface.
+* **Backend:** Integrated with Firebase Database for robust and scalable data management.
 
-A few resources to get you started if this is your first Flutter project:
+## Purpose
+The primary purpose of this app is to streamline and optimize the process of distributing products by providing real-time management tools for both admins and distributors. Admins can efficiently oversee the entire distribution network, while distributors have the tools they need to manage their daily operations effectively.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Feel free to explore the code and contribute to further improvements !
